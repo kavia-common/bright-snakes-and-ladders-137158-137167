@@ -1,104 +1,369 @@
-/* CSS Variables for Theme Management */
+/* === COLOR THEME === */
 :root {
-  /* Light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #282c34;
-  --text-secondary: #61dafb;
-  --border-color: #e9ecef;
-  --button-bg: #007bff;
-  --button-text: #ffffff;
+  --sln-primary: #FFD600;
+  --sln-accent: #FF4081;
+  --sln-secondary: #00C853;
+  --sln-board-bg: #fff8e1;
+  --sln-board-border: #FFD600;
+  --sln-av-green: #00C853;
+  --sln-av-pink: #FF4081;
+  --sln-av-yellow: #FFD600;
+  --sln-av-blue: #536DFE;
+  --sln-snake: #FF4081;
+  --sln-ladder: #00C853;
+  --sln-tile-numbers: #757575;
+  --sln-text: #1a1a1a;
+  --sln-text-light: #fff;
+  --sln-border: #e0c200;
+  --sln-winner-bg: linear-gradient(90deg, #FFF9F0 60%, #FFD600 100%);
+  --sln-shadow: 0 2px 18px 0 rgba(255,224,0,0.10), 0 1px 3px rgba(0,200,83,0.13);
 }
-
-[data-theme="dark"] {
-  /* Dark theme colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #282c34;
-  --text-primary: #ffffff;
-  --text-secondary: #61dafb;
-  --border-color: #404040;
-  --button-bg: #0056b3;
-  --button-text: #ffffff;
-}
-
-.App {
-  text-align: center;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+/* === LAYOUT === */
+.main-app {
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 100vw;
+  background: var(--sln-board-bg);
+  color: var(--sln-text);
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", "Nunito", Arial, sans-serif;
 }
-
-.App-logo {
-  height: 40vmin;
+.top-bar {
+  height: 54px;
+  background: var(--sln-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(8px, 6vw, 30px);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #fff;
+}
+.top-bar .btn-reset {
+  background: none;
+  border: 1.5px solid var(--sln-primary);
+  color: var(--sln-primary);
+  border-radius: 22px;
+  font-size: 1.05rem;
+  padding: 3px 18px 3px 10px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.top-bar .btn-reset:hover {
+  background: var(--sln-primary);
+  color: var(--sln-secondary);
+}
+.game-layout {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3vw;
+  padding: clamp(8px, 2vw, 34px) clamp(0.5vw, 5vw, 54px) 0 clamp(0.5vw, 5vw, 34px);
+  min-height: 650px;
+}
+.board-area {
+  display: flex;
+  align-items: flex-end;
+}
+.side-right {
+  min-width: 280px;
+  margin-left: 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 16px;
+}
+.dice-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 92px;
+  margin-bottom: 7px;
+}
+.turn-indicator {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.turn-indicator b {
+  color: var(--sln-accent);
+}
+.game-board-wrap {
+  position: relative;
+  margin: auto;
+  border-radius: 16px;
+  box-shadow: var(--sln-shadow);
+  user-select: none;
+  outline: 3px solid var(--sln-board-border, #FFD600);
+  transition: outline-color 0.22s;
+}
+.game-board-svg {
+  display: block;
+  border-radius: 16px;
+  background: var(--sln-board-bg);
+}
+.board-tile {
+  cursor: pointer;
+  transition: fill 0.15s;
+}
+.board-tile:hover {
+  filter: brightness(0.98);
+}
+.board-tile-group:focus {
+  outline: 2px solid var(--sln-accent);
+}
+.board-abs-pawns {
   pointer-events: none;
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.player-pawn {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  z-index: 6;
+  transition: left 0.5s cubic-bezier(.26,.92,.58,1.07), top 0.5s cubic-bezier(.26,.92,.58,1.07), box-shadow 0.2s;
+  filter: drop-shadow(0 2.5px 4px #9994);
+  border-radius: 50%;
+  background: none;
 }
-
-.App-header {
-  background-color: var(--bg-secondary);
-  min-height: 100vh;
+/* Start flash animation if animating? */
+.player-pawn.animating {
+  animation: sln-flash 0.33s 2 alternate;
+}
+@keyframes sln-flash {
+  0%   { filter: drop-shadow(0 2px 8px var(--sln-accent)); }
+  100% { filter: drop-shadow(0 5px 20px var(--sln-secondary)); }
+}
+.player-setup {
+  margin: auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: var(--sln-shadow);
+  padding: 40px 36px 30px 36px;
+  min-width: 335px;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.player-setup h1 {
+  font-family: inherit;
+  margin-top: 0;
+  color: var(--sln-accent);
+}
+.player-setup label {
+  font-weight: 500;
+  font-size: 1.04rem;
+  margin: 14px 0px 7px 0px;
+}
+.player-setup input[type="text"] {
+  margin-left: 8px;
+  border: 2.2px solid var(--sln-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 2px 11px;
+  transition: border 0.15s;
+}
+.player-setup input[type="text"]:focus {
+  outline: none;
+  border: 2.5px solid var(--sln-accent);
+}
+.player-setup select {
+  margin-left: 8px;
+  font-size: 1rem;
+  border-radius: 6px;
+  padding: 2.5px 8px;
+}
+.player-setup .btn-start {
+  margin-top: 19px;
+  background: var(--sln-secondary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 32px;
+  font-size: 1.06rem;
+  font-weight: 600;
+  box-shadow: 0 2.5px 8px rgba(0,200,83,0.13);
+  cursor: pointer;
+  transition: filter 0.15s, background 0.13s;
+}
+.player-setup .btn-start:hover,
+.player-setup .btn-start:focus {
+  background: var(--sln-primary);
+  color: var(--sln-secondary);
+  filter: brightness(1.04);
+}
+.scoreboard {
+  margin-top: 18px;
+  width: 100%;
+  background: #fffce7;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(255,224,0,0.07);
+  padding: 14px 17px 17px 17px;
+  min-width: 180px;
+}
+.scoreboard h2 {
+  font-size: 1.14rem;
+  color: var(--sln-accent);
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: -8px;
+  letter-spacing: 0.04em;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 4px 2px 2px 2px;
+  min-height: 32px;
+  user-select: none;
+  box-shadow: none;
+}
+.score-row:last-child {
+  margin-bottom: 0;
+}
+.score-row.winner {
+  background: var(--sln-winner-bg);
+  font-weight: bold;
+  border: 1.2px solid var(--sln-accent);
+}
+.score-pos {
+  flex: 1;
+  padding-left: 9px;
+  text-align: left;
+  font-size: 1.05rem;
+  min-width: 58px;
+}
+.winner-badge {
+  margin-left: 5px;
+  font-size: 1.17em;
+  color: var(--sln-accent);
+}
+/* Avatar */
+.player-avatar {
+  display: flex;
+  align-items: center;
+  border-radius: 18px;
+  padding: 2.5px 11px 2.5px 2px;
+  background: #fff;
+  border: 2.5px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-right: 6px;
+  transition: border 0.16s, background 0.16s;
+  box-shadow: 0 2.5px 8px rgba(255,224,0,0.10);
+}
+.player-avatar .player-name {
+  margin-left: 6.5px;
+  font-size: 1.07em;
+  color: var(--sln-text);
+  max-width: 60px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.player-avatar[aria-current="true"] {
+  border: 2.5px solid var(--sln-accent);
+  background: #fff2fa;
+}
+.player-avatar:focus {
+  outline: 2.5px solid var(--sln-secondary);
+}
+/* Dice */
+.dice-block {
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease;
-  position: relative;
+}
+.dice-btn {
+  background: #fffbc7;
+  border: 2.5px solid var(--sln-secondary);
+  border-radius: 17px;
+  font-size: 1.19rem;
+  font-weight: bold;
+  color: var(--sln-secondary);
+  padding: 12px 24px 12px 17px;
+  box-shadow: 0 4px 18px 0 rgba(255,224,0,0.10);
+  margin: 0;
+  min-width: 105px;
+  min-height: 54px;
+  outline: none;
+  transition: background 0.12s, filter 0.17s, border 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dice-btn:active {
+  background: var(--sln-secondary);
+  color: #fff;
+  border: 2.6px solid var(--sln-primary);
+}
+.dice-btn:disabled {
+  opacity: 0.56;
+  filter: grayscale(0.13);
+  cursor: not-allowed;
+  background: #ffeeb9;
+}
+.dice-face {
+  margin-right: 7px;
+  filter: drop-shadow(0 2px 3px #00c8532c);
+  transition: filter 0.2s;
+}
+.dice-dots circle {
+  transition: fill 0.21s;
+}
+.dice-label {
+  font-size: 1.11rem;
+}
+.dice-btn.rolling .dice-face {
+  animation: rollDiceSpin 0.48s infinite linear;
+}
+@keyframes rollDiceSpin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
 }
 
-.App-link {
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
-}
-
-.theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.theme-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
-}
-
-.theme-toggle:active {
-  transform: translateY(0);
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 1100px) {
+  .game-layout {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 18px;
+    gap: 0;
   }
-  to {
-    transform: rotate(360deg);
+  .side-right {
+    min-width: 210px;
+    width: 100vw;
+    align-items: center;
+    margin-left: 0;
+    margin-top: 13px;
   }
 }
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 12px;
+@media (max-width: 600px) {
+  .game-board-wrap {
+    min-width: unset !important;
+    min-height: unset !important;
+    width: 95vw;
+    height: 95vw;
+    max-width: 98vw;
+    max-height: 98vw;
+  }
+  .game-board-svg {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vw !important;
+    max-height: 100vw !important;
+  }
+  .scoreboard {
+    padding: 9px 7px 9px 7px;
+    min-width: 120px;
+  }
+  .dice-footer {
+    min-height: 78px;
   }
 }
